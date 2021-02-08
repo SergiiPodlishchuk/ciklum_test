@@ -6,75 +6,175 @@ const refs = {
   new_event: document.querySelector('#new_event'),
 };
 
+let events = [];
+
+if (localStorage.getItem('events')) {
+  events = JSON.parse(localStorage.getItem('events'));
+}
+
 function renderCalendar() {
   let arr_rows = [];
   for (let i = 10; i <= 18; i++) {
-    const row_render = `
-        <tr>
+    const time = events.filter(({ time }) => +time.slice(0, 2) === i);
+
+    const mon = time.find(({ day }) => day === 'mon');
+    const tue = time.find(({ day }) => day === 'tue');
+    const wed = time.find(({ day }) => day === 'wed');
+    const thu = time.find(({ day }) => day === 'thu');
+    const fri = time.find(({ day }) => day === 'fri');
+
+    const ddd = `
+    <tr>
         <th class="time">${i}:00</th>
-        <th class="point" id="cell_${i}_mon"></th>
-        <th class="point" id="cell_${i}_tue"></th>
-        <th class="point" id="cell_${i}_wed"></th>
-        <th class="point" id="cell_${i}_thu"></th>
-        <th class="point" id="cell_${i}_fri"></th>
-        </tr>`;
-    arr_rows.push(row_render);
+        <th class="point ${mon ? 'backGround' : ''}" id="cell_${i}_mon">${
+      mon ? `${mon.text}<button type="button">X</button>` : ''
+    }</th>
+        <th class="point ${tue ? 'backGround' : ''}" id="cell_${i}_tue">${
+      tue ? `${tue.text}<button type="button">X</button>` : ''
+    }</th>
+        <th class="point ${wed ? 'backGround' : ''}" id="cell_${i}_wed">${
+      wed ? `${wed.text}<button type="button">X</button>` : ''
+    }</th>
+        <th class="point ${thu ? 'backGround' : ''}" id="cell_${i}_thu">${
+      thu ? `${thu.text}<button type="button">X</button>` : ''
+    }</th>
+        <th class="point ${fri ? 'backGround' : ''}" id="cell_${i}_fri">${
+      fri ? `${fri.text}<button type="button">X</button>` : ''
+    }</th>
+    </tr>
+    `;
+
+    arr_rows.push(ddd);
   }
+
   return arr_rows;
 }
 
 refs.table_calendar.insertAdjacentHTML('beforeend', renderCalendar().join(''));
-
 refs.container.addEventListener('click', renderForm_Add);
+refs.table_calendar.addEventListener('click', delete_event);
 
 function renderForm_Add(e) {
   if (e.target.id === 'new_event') {
     refs.container.innerHTML = '';
-    const renderForm = `
-        <form action="">
-        <label for="">
-          <input type="text">
+    refs.container.insertAdjacentHTML('beforeend', renderForm());
+
+    const form = document.querySelector('#form_create_event');
+    const text = document.querySelector('#text_event');
+    const participant = document.querySelector('#participants');
+    const day = document.querySelector('#dayId');
+    const time = document.querySelector('#timeId');
+
+    const event_Data = {
+      text: '',
+      participant: participant.value,
+      day: day.value,
+      time: time.value,
+    };
+
+    function takeValue(domElem, keyObj, method) {
+      domElem.addEventListener(method, e => {
+        event_Data[keyObj] = e.target.value;
+      });
+    }
+
+    takeValue(text, 'text', 'input');
+    takeValue(participant, 'participant', 'click');
+    takeValue(day, 'day', 'click');
+    takeValue(time, 'time', 'click');
+    console.log(events);
+
+    form.addEventListener('click', e => {
+      if (e.target.id === 'cancel') {
+        document.location.href = 'http://localhost:4040';
+      }
+    });
+
+    form.addEventListener('submit', e => submitEvent(event_Data, e));
+  }
+}
+
+function submitEvent(event_Data, e) {
+  const eventAgain = events.find(
+    event => event.time === event_Data.time && event.day === event_Data.day,
+  );
+  if (eventAgain) {
+    e.preventDefault();
+    const alert = `
+    <div class="alert">
+        <div class="big_red_x">x</div>
+        <p class="alert_text">Failed to create an event. Time slot is already booked</p>
+        <button type="button" class="close_alert">x</button>
+    </div>`;
+
+    refs.container.insertAdjacentHTML('beforebegin', alert);
+    const closeAlert = document.querySelector('.close_alert');
+    const alertWind = document.querySelector('.alert');
+    closeAlert.addEventListener('click', () => {
+      alertWind.remove();
+    });
+    return;
+  }
+  events.push(event_Data);
+  localStorage.setItem('events', JSON.stringify(events));
+}
+
+function renderForm() {
+  return `
+        <form action="create" id="form_create_event">
+        <label for=""> Name of the event
+          <input type="text" id="text_event">
         </label>
     
-        <label for="">
-          <select name="" id="">
-            <option value="">Maria</option>
-            <option value="">Bob</option>
-            <option value="">Alex</option>
+        <label for=""> Participants
+          <select name="participant" id="participants" required>
+            <option value="Maria">Maria</option>
+            <option value="Bob">Bob</option>
+            <option value="Alex">Alex</option>
           </select>
         </label>
-        <label for="">
-          <select name="" id=""> Day
-            <option value="">Mon</option>
-            <option value="">Tue</option>
-            <option value="">Wed</option>
-            <option value="">Thu</option>
-            <option value="">Fri</option>
+        <label for=""> Day
+          <select form="form_create_event" name="day" id="dayId" required>
+            <option value="mon">Monday</option>
+            <option value="tue">Tuesday</option>
+            <option value="wed">Wednesday</option>
+            <option value="thu">Thursday</option>
+            <option value="fri">Friday</option>
           </select>
         </label>
         <label for="">Time
-          <select name="" id=""> Day
-            <option value="">10:00</option>
-            <option value="">11:00</option>
-            <option value="">12:00</option>
-            <option value="">13:00</option>
-            <option value="">14:00</option>
-            <option value="">15:00</option>
-            <option value="">16:00</option>
-            <option value="">17:00</option>
-            <option value="">18:00</option>
-    
+          <select name="time" id="timeId" required>
+            <option value="10_00">10:00</option>
+            <option value="11_00">11:00</option>
+            <option value="12_00">12:00</option>
+            <option value="13_00">13:00</option>
+            <option value="14_00">14:00</option>
+            <option value="15_00">15:00</option>
+            <option value="16_00">16:00</option>
+            <option value="17_00">17:00</option>
+            <option value="18_00">18:00</option>
           </select>
-    
         </label>
-        
-        <button type="button" id="cancel">Cancel</button>
-        <button type="submit" id="create">Create</button>
-  
+
+        <div class="buttons">
+            <button type="button" id="cancel">Cancel</button>
+            <button type="submit" id="create">Create</button>
+        </div>
 
       </form>
     `;
+}
 
-    refs.container.insertAdjacentHTML('beforeend', renderForm);
+function delete_event(e) {
+  if (e.target.type === 'button') {
+    const timeEvent = e.target.offsetParent.id.split('_')[1];
+    const dayEvent = e.target.offsetParent.id.split('_')[2];
+
+    const deleteEvent = events.find(
+      event => event.time.split('_')[0] === timeEvent && event.day === dayEvent,
+    );
+    const arrfiltevent = events.filter(event => event !== deleteEvent);
+    localStorage.setItem('events', JSON.stringify(arrfiltevent));
+    document.location.href = 'http://localhost:4040';
   }
 }
