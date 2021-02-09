@@ -15,33 +15,38 @@
     <header class="header">
       <h1 class="name_page">Calendar</h1>
       <div class="member_event">
-        <select name="" id="">
-          <option value="">All members</option>
-          <option value="">Maria</option>
-          <option value="">Bob</option>
-          <option value="">Alex</option>
+        <select name="members" id="members">
+          <option value="All_members">All members</option>
+          <option value="Maria">Maria</option>
+          <option value="Bob">Bob</option>
+          <option value="Alex">Alex</option>
         </select>
         <button type="button" id="new_event">New event +</button>
       </div>
 
     </header>
     <table class="table_calendar">
-      <tr class="head">
-        <th>Name</th>
-        <th>Monday</th>
-        <th>Tuesday</th>
-        <th>Wednesday</th>
-        <th>Thursday</th>
-        <th>Friday</th>
+      <tbody class="header_part">
+        <tr class="head">
+          <th>Name</th>
+          <th>Monday</th>
+          <th>Tuesday</th>
+          <th>Wednesday</th>
+          <th>Thursday</th>
+          <th>Friday</th>
+        </tr>
+      </tbody>
+      <tbody class="main_part_table"></tbody>
 
-      </tr>
-
-      <select name="" id="" required></select>
-
+      <input type="text" id="members_arr">
+      <select name="" id="frg">
+        <option value="df">df</option>
+        <option value="er">er</option>
+        <option value="ty">ty</option>
+      </select>
     </table>
   </div>
-
-
 </body>
+
 
 </html>

@@ -4,6 +4,8 @@ const refs = {
   table_calendar: document.querySelector('.table_calendar'),
   container: document.querySelector('.container'),
   new_event: document.querySelector('#new_event'),
+  members: document.querySelector('#members'),
+  main_part_table: document.querySelector('.main_part_table'),
 };
 
 let events = [];
@@ -11,11 +13,33 @@ let events = [];
 if (localStorage.getItem('events')) {
   events = JSON.parse(localStorage.getItem('events'));
 }
+console.log(events);
 
-function renderCalendar() {
+function filterMembers(events_arr, e) {
+  let filter;
+
+  filter = events_arr.filter(
+    ({ participant }) => participant === e.target.value,
+  );
+
+  if (e.target.value === 'All_members') {
+    filter = events;
+  }
+
+  refs.main_part_table.innerHTML = '';
+
+  refs.main_part_table.insertAdjacentHTML(
+    'beforeend',
+    renderCalendar(filter).join(''),
+  );
+}
+
+refs.members.addEventListener('change', e => filterMembers(events, e));
+
+function renderCalendar(arr) {
   let arr_rows = [];
   for (let i = 10; i <= 18; i++) {
-    const time = events.filter(({ time }) => +time.slice(0, 2) === i);
+    const time = arr.filter(({ time }) => +time.slice(0, 2) === i);
 
     const mon = time.find(({ day }) => day === 'mon');
     const tue = time.find(({ day }) => day === 'tue');
@@ -50,7 +74,10 @@ function renderCalendar() {
   return arr_rows;
 }
 
-refs.table_calendar.insertAdjacentHTML('beforeend', renderCalendar().join(''));
+refs.main_part_table.insertAdjacentHTML(
+  'beforeend',
+  renderCalendar(events).join(''),
+);
 refs.container.addEventListener('click', renderForm_Add);
 refs.table_calendar.addEventListener('click', delete_event);
 
@@ -82,7 +109,6 @@ function renderForm_Add(e) {
     takeValue(participant, 'participant', 'click');
     takeValue(day, 'day', 'click');
     takeValue(time, 'time', 'click');
-    console.log(events);
 
     form.addEventListener('click', e => {
       if (e.target.id === 'cancel') {
@@ -127,7 +153,7 @@ function renderForm() {
         </label>
     
         <label for=""> Participants
-          <select name="participant" id="participants" required>
+          <select name="participant" id="participants" required >
             <option value="Maria">Maria</option>
             <option value="Bob">Bob</option>
             <option value="Alex">Alex</option>
@@ -178,3 +204,13 @@ function delete_event(e) {
     document.location.href = 'http://localhost:4040';
   }
 }
+
+const input = document.querySelector('#members_arr');
+const select = document.querySelector('#frg');
+
+let arf = [];
+select.addEventListener('change', e => {
+  arf.push(e.target.value);
+  input.value = arf.join();
+  console.log(input.value);
+});
