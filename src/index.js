@@ -6,6 +6,9 @@ const refs = {
   new_event: document.querySelector('#new_event'),
   members: document.querySelector('#members'),
   main_part_table: document.querySelector('.main_part_table'),
+  noButton: document.querySelector('#noButton'),
+  yesButton: document.querySelector('#yesButton'),
+  confirm: document.querySelector('#confirm_block'),
 };
 
 let events = [];
@@ -13,14 +16,14 @@ let events = [];
 if (localStorage.getItem('events')) {
   events = JSON.parse(localStorage.getItem('events'));
 }
-console.log(events);
 
 function filterMembers(events_arr, e) {
   let filter;
 
-  filter = events_arr.filter(
-    ({ participant }) => participant === e.target.value,
+  filter = events_arr.filter(({ participant }) =>
+    participant.includes(e.target.value),
   );
+  console.log(filter);
 
   if (e.target.value === 'All_members') {
     filter = events;
@@ -41,31 +44,27 @@ function renderCalendar(arr) {
   for (let i = 10; i <= 18; i++) {
     const time = arr.filter(({ time }) => +time.slice(0, 2) === i);
 
-    const mon = time.find(({ day }) => day === 'mon');
-    const tue = time.find(({ day }) => day === 'tue');
-    const wed = time.find(({ day }) => day === 'wed');
-    const thu = time.find(({ day }) => day === 'thu');
-    const fri = time.find(({ day }) => day === 'fri');
+    const days = ['mon', 'tue', 'wed', 'thu', 'fri'];
+
+    let tr_arr = [];
+
+    for (const dayCur of days) {
+      const day = time.find(({ day }) => day === dayCur);
+
+      const tr = `<th class="point ${
+        day ? 'backGround' : ''
+      }" id="cell_${i}_${dayCur}" draggable="true">
+        ${day ? `${day.text}<button type="button">X</button>` : ''}
+      </th>
+    `;
+      tr_arr.push(tr);
+    }
 
     const ddd = `
-    <tr>
-        <th class="time">${i}:00</th>
-        <th class="point ${mon ? 'backGround' : ''}" id="cell_${i}_mon">${
-      mon ? `${mon.text}<button type="button">X</button>` : ''
-    }</th>
-        <th class="point ${tue ? 'backGround' : ''}" id="cell_${i}_tue">${
-      tue ? `${tue.text}<button type="button">X</button>` : ''
-    }</th>
-        <th class="point ${wed ? 'backGround' : ''}" id="cell_${i}_wed">${
-      wed ? `${wed.text}<button type="button">X</button>` : ''
-    }</th>
-        <th class="point ${thu ? 'backGround' : ''}" id="cell_${i}_thu">${
-      thu ? `${thu.text}<button type="button">X</button>` : ''
-    }</th>
-        <th class="point ${fri ? 'backGround' : ''}" id="cell_${i}_fri">${
-      fri ? `${fri.text}<button type="button">X</button>` : ''
-    }</th>
-    </tr>
+        <tr>
+          <th class="time">${i}:00</th>
+          ${tr_arr.join('')}
+        </tr>
     `;
 
     arr_rows.push(ddd);
@@ -91,6 +90,7 @@ function renderForm_Add(e) {
     const participant = document.querySelector('#participants');
     const day = document.querySelector('#dayId');
     const time = document.querySelector('#timeId');
+    const input_members = document.querySelector('#members_list');
 
     const event_Data = {
       text: '',
@@ -98,6 +98,12 @@ function renderForm_Add(e) {
       day: day.value,
       time: time.value,
     };
+    let arf = [];
+    participant.addEventListener('change', e => {
+      arf.push(e.target.value);
+      input_members.value = arf;
+      event_Data.participant = [...arf];
+    });
 
     function takeValue(domElem, keyObj, method) {
       domElem.addEventListener(method, e => {
@@ -106,7 +112,6 @@ function renderForm_Add(e) {
     }
 
     takeValue(text, 'text', 'input');
-    takeValue(participant, 'participant', 'click');
     takeValue(day, 'day', 'click');
     takeValue(time, 'time', 'click');
 
@@ -153,6 +158,7 @@ function renderForm() {
         </label>
     
         <label for=""> Participants
+        <input type="text" id="members_list">
           <select name="participant" id="participants" required >
             <option value="Maria">Maria</option>
             <option value="Bob">Bob</option>
@@ -199,18 +205,16 @@ function delete_event(e) {
     const deleteEvent = events.find(
       event => event.time.split('_')[0] === timeEvent && event.day === dayEvent,
     );
-    const arrfiltevent = events.filter(event => event !== deleteEvent);
-    localStorage.setItem('events', JSON.stringify(arrfiltevent));
-    document.location.href = 'http://localhost:4040';
+
+    refs.confirm.classList.remove('displayNone');
+
+    refs.yesButton.addEventListener('click', e => {
+      const arrfiltevent = events.filter(event => event !== deleteEvent);
+      localStorage.setItem('events', JSON.stringify(arrfiltevent));
+      document.location.href = 'http://localhost:4040';
+    });
+    refs.noButton.addEventListener('click', e => {
+      refs.confirm.classList.add('displayNone');
+    });
   }
 }
-
-const input = document.querySelector('#members_arr');
-const select = document.querySelector('#frg');
-
-let arf = [];
-select.addEventListener('change', e => {
-  arf.push(e.target.value);
-  input.value = arf.join();
-  console.log(input.value);
-});
