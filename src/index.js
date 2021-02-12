@@ -48,12 +48,12 @@ function renderCalendar(arr) {
 
     let tr_arr = [];
 
-    for (const dayCur of days) {
-      const day = time.find(({ day }) => day === dayCur);
+    for (const dayCurent of days) {
+      const day = time.find(({ day }) => day === dayCurent);
 
       const tr = `<th class="point ${
         day ? 'backGround' : ''
-      }" id="cell_${i}_${dayCur}" draggable="true">
+      }" id="cell_${i}_${dayCurent}" draggable="true">
         ${day ? `${day.text}<button type="button">X</button>` : ''}
       </th>
     `;
@@ -217,4 +217,47 @@ function delete_event(e) {
       refs.confirm.classList.add('displayNone');
     });
   }
+}
+
+refs.main_part_table.addEventListener('dragstart', e => {
+  e.target.classList.add(`selected`);
+});
+
+refs.main_part_table.addEventListener('drop', onDrop);
+
+refs.main_part_table.addEventListener('dragover', e => e.preventDefault());
+
+function onDrop(e) {
+  e.preventDefault();
+
+  const activeElement = refs.main_part_table.querySelector(`.selected`);
+  const currentElement = e.target;
+  const isMoveable =
+    activeElement !== currentElement &&
+    currentElement.classList.contains(`point`);
+  if (!isMoveable) {
+    return;
+  }
+
+  const activeTime = activeElement.id.split('_')[1];
+  const activeDay = activeElement.id.split('_')[2];
+
+  const changeEvent = events.find(
+    event => event.time.split('_')[0] === activeTime && event.day === activeDay,
+  );
+
+  const arrfiltevent = events.filter(event => event !== changeEvent);
+
+  const currentTime = `${currentElement.id.split('_')[1]}_00`;
+  const currentDay = currentElement.id.split('_')[2];
+
+  changeEvent.time = currentTime;
+  changeEvent.day = currentDay;
+
+  arrfiltevent.push(changeEvent);
+  console.log(arrfiltevent);
+  localStorage.setItem('events', JSON.stringify(arrfiltevent));
+
+  activeElement.classList.remove(`selected`);
+  document.location.href = 'http://localhost:4040';
 }

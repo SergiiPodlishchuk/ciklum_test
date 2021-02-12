@@ -169,3 +169,8 @@ padding: 10px;
 .displayNone{
   display: none;
 }
+
+.selected {
+  background-color: red;
+  opacity: 0.6;
+}
