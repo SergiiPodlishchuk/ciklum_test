@@ -17,6 +17,24 @@ if (localStorage.getItem('events')) {
   events = JSON.parse(localStorage.getItem('events'));
 }
 
+refs.members.addEventListener('change', e => filterMembers(events, e));
+
+refs.main_part_table.insertAdjacentHTML(
+  'beforeend',
+  renderCalendar(events).join(''),
+);
+refs.container.addEventListener('click', renderForm_Add);
+
+refs.table_calendar.addEventListener('click', delete_event);
+
+refs.main_part_table.addEventListener('dragstart', e => {
+  e.target.classList.add(`selected`);
+});
+
+refs.main_part_table.addEventListener('drop', onDrop);
+
+refs.main_part_table.addEventListener('dragover', e => e.preventDefault());
+
 function filterMembers(events_arr, e) {
   let filter;
 
@@ -36,8 +54,6 @@ function filterMembers(events_arr, e) {
     renderCalendar(filter).join(''),
   );
 }
-
-refs.members.addEventListener('change', e => filterMembers(events, e));
 
 function renderCalendar(arr) {
   let arr_rows = [];
@@ -73,13 +89,6 @@ function renderCalendar(arr) {
   return arr_rows;
 }
 
-refs.main_part_table.insertAdjacentHTML(
-  'beforeend',
-  renderCalendar(events).join(''),
-);
-refs.container.addEventListener('click', renderForm_Add);
-refs.table_calendar.addEventListener('click', delete_event);
-
 function renderForm_Add(e) {
   if (e.target.id === 'new_event') {
     refs.container.innerHTML = '';
@@ -107,7 +116,9 @@ function renderForm_Add(e) {
 
     function takeValue(domElem, keyObj, method) {
       domElem.addEventListener(method, e => {
-        event_Data[keyObj] = e.target.value;
+        let value = e.target.value;
+
+        event_Data[keyObj] = value;
       });
     }
 
@@ -153,11 +164,11 @@ function submitEvent(event_Data, e) {
 function renderForm() {
   return `
         <form action="create" id="form_create_event">
-        <label for=""> Name of the event
+        <label for=""> Name of the event:
           <input type="text" id="text_event">
         </label>
     
-        <label for=""> Participants
+        <label for=""> Participants:
         <input type="text" id="members_list">
           <select name="participant" id="participants" required >
             <option value="Maria">Maria</option>
@@ -165,7 +176,7 @@ function renderForm() {
             <option value="Alex">Alex</option>
           </select>
         </label>
-        <label for=""> Day
+        <label for=""> Day:
           <select form="form_create_event" name="day" id="dayId" required>
             <option value="mon">Monday</option>
             <option value="tue">Tuesday</option>
@@ -174,7 +185,7 @@ function renderForm() {
             <option value="fri">Friday</option>
           </select>
         </label>
-        <label for="">Time
+        <label for="">Time:
           <select name="time" id="timeId" required>
             <option value="10_00">10:00</option>
             <option value="11_00">11:00</option>
@@ -218,14 +229,6 @@ function delete_event(e) {
     });
   }
 }
-
-refs.main_part_table.addEventListener('dragstart', e => {
-  e.target.classList.add(`selected`);
-});
-
-refs.main_part_table.addEventListener('drop', onDrop);
-
-refs.main_part_table.addEventListener('dragover', e => e.preventDefault());
 
 function onDrop(e) {
   e.preventDefault();
