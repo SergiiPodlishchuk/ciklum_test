@@ -128,7 +128,7 @@ function renderForm_Add(e) {
 
     form.addEventListener('click', e => {
       if (e.target.id === 'cancel') {
-        document.location.href = 'http://localhost:4040';
+        location.reload();
       }
     });
 
@@ -222,7 +222,7 @@ function delete_event(e) {
     refs.yesButton.addEventListener('click', e => {
       const arrfiltevent = events.filter(event => event !== deleteEvent);
       localStorage.setItem('events', JSON.stringify(arrfiltevent));
-      document.location.href = 'http://localhost:4040';
+      location.reload();
     });
     refs.noButton.addEventListener('click', e => {
       refs.confirm.classList.add('displayNone');
@@ -262,5 +262,5 @@ function onDrop(e) {
   localStorage.setItem('events', JSON.stringify(arrfiltevent));
 
   activeElement.classList.remove(`selected`);
-  document.location.href = 'http://localhost:4040';
+  location.reload();
 }
