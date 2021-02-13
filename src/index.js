@@ -158,8 +158,7 @@ function submitEvent(event_Data, e) {
   }
   events.push(event_Data);
   localStorage.setItem('events', JSON.stringify(events));
-  // history.back();
-  location.reload();
+  // refs.container.innerHTML = '';
 }
 
 function renderForm() {
@@ -268,9 +267,7 @@ function onDrop(e) {
   changeEvent.day = currentDay;
 
   arrfiltevent.push(changeEvent);
-  console.log(arrfiltevent);
   localStorage.setItem('events', JSON.stringify(arrfiltevent));
-
   activeElement.classList.remove(`selected`);
   refs.main_part_table.innerHTML = '';
   refs.main_part_table.insertAdjacentHTML(
