@@ -41,7 +41,6 @@ function filterMembers(events_arr, e) {
   filter = events_arr.filter(({ participant }) =>
     participant.includes(e.target.value),
   );
-  console.log(filter);
 
   if (e.target.value === 'All_members') {
     filter = events;
@@ -211,6 +210,7 @@ function renderForm() {
 }
 
 function delete_event(e) {
+  e.preventDefault();
   if (e.target.type === 'button') {
     const timeEvent = e.target.offsetParent.id.split('_')[1];
     const dayEvent = e.target.offsetParent.id.split('_')[2];
@@ -223,8 +223,16 @@ function delete_event(e) {
 
     refs.yesButton.addEventListener('click', e => {
       const arrfiltevent = events.filter(event => event !== deleteEvent);
-      localStorage.setItem('events', JSON.stringify(arrfiltevent));
-      location.reload();
+      events = arrfiltevent;
+
+      localStorage.setItem('events', JSON.stringify(events));
+
+      refs.main_part_table.innerHTML = '';
+      refs.main_part_table.insertAdjacentHTML(
+        'beforeend',
+        renderCalendar(arrfiltevent).join(''),
+      );
+      refs.confirm.classList.add('displayNone');
     });
     refs.noButton.addEventListener('click', e => {
       refs.confirm.classList.add('displayNone');
@@ -264,5 +272,9 @@ function onDrop(e) {
   localStorage.setItem('events', JSON.stringify(arrfiltevent));
 
   activeElement.classList.remove(`selected`);
-  location.reload();
+  refs.main_part_table.innerHTML = '';
+  refs.main_part_table.insertAdjacentHTML(
+    'beforeend',
+    renderCalendar(arrfiltevent).join(''),
+  );
 }
