@@ -127,7 +127,8 @@ function renderForm_Add(e) {
 
     form.addEventListener('click', e => {
       if (e.target.id === 'cancel') {
-        location.reload();
+        console.dir(document.body.firstElementChild.innerHTML);
+        // location.reload();
       }
     });
 
@@ -209,32 +210,29 @@ function renderForm() {
 }
 
 function delete_event(e) {
-  e.preventDefault();
   if (e.target.type === 'button') {
+    refs.confirm.classList.remove('displayNone');
     const timeEvent = e.target.offsetParent.id.split('_')[1];
     const dayEvent = e.target.offsetParent.id.split('_')[2];
-
     const deleteEvent = events.find(
       event => event.time.split('_')[0] === timeEvent && event.day === dayEvent,
     );
+    const arrfiltevent = events.filter(event => event !== deleteEvent);
 
-    refs.confirm.classList.remove('displayNone');
+    refs.confirm.addEventListener('click', e => {
+      if (e.target.id === 'yesButton') {
+        events = arrfiltevent;
+        localStorage.setItem('events', JSON.stringify(events));
 
-    refs.yesButton.addEventListener('click', e => {
-      const arrfiltevent = events.filter(event => event !== deleteEvent);
-      events = arrfiltevent;
-
-      localStorage.setItem('events', JSON.stringify(events));
-
-      refs.main_part_table.innerHTML = '';
-      refs.main_part_table.insertAdjacentHTML(
-        'beforeend',
-        renderCalendar(arrfiltevent).join(''),
-      );
-      refs.confirm.classList.add('displayNone');
-    });
-    refs.noButton.addEventListener('click', e => {
-      refs.confirm.classList.add('displayNone');
+        refs.main_part_table.innerHTML = '';
+        refs.main_part_table.insertAdjacentHTML(
+          'beforeend',
+          renderCalendar(arrfiltevent).join(''),
+        );
+        refs.confirm.classList.add('displayNone');
+      } else if (e.target.id === 'noButton') {
+        refs.confirm.classList.add('displayNone');
+      }
     });
   }
 }
