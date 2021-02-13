@@ -8,7 +8,6 @@ const refs = {
   main_part_table: document.querySelector('.main_part_table'),
   noButton: document.querySelector('#noButton'),
   yesButton: document.querySelector('#yesButton'),
-  confirm: document.querySelector('#confirm_block'),
 };
 
 let events = [];
@@ -116,7 +115,6 @@ function renderForm_Add(e) {
     function takeValue(domElem, keyObj, method) {
       domElem.addEventListener(method, e => {
         let value = e.target.value;
-
         event_Data[keyObj] = value;
       });
     }
@@ -127,8 +125,7 @@ function renderForm_Add(e) {
 
     form.addEventListener('click', e => {
       if (e.target.id === 'cancel') {
-        console.dir(document.body.firstElementChild.innerHTML);
-        // location.reload();
+        location.reload();
       }
     });
 
@@ -137,6 +134,7 @@ function renderForm_Add(e) {
 }
 
 function submitEvent(event_Data, e) {
+  e.preventDefault();
   const eventAgain = events.find(
     event => event.time === event_Data.time && event.day === event_Data.day,
   );
@@ -159,12 +157,12 @@ function submitEvent(event_Data, e) {
   }
   events.push(event_Data);
   localStorage.setItem('events', JSON.stringify(events));
-  // refs.container.innerHTML = '';
+  location.reload();
 }
 
 function renderForm() {
   return `
-        <form action="create" id="form_create_event">
+        <form action="create" id="form_create_event" target="">
         <label for=""> Name of the event:
           <input type="text" id="text_event">
         </label>
@@ -210,8 +208,10 @@ function renderForm() {
 }
 
 function delete_event(e) {
+  const confirm = document.querySelector('#confirm_block');
+
   if (e.target.type === 'button') {
-    refs.confirm.classList.remove('displayNone');
+    confirm.classList.remove('displayNone');
     const timeEvent = e.target.offsetParent.id.split('_')[1];
     const dayEvent = e.target.offsetParent.id.split('_')[2];
     const deleteEvent = events.find(
@@ -219,7 +219,7 @@ function delete_event(e) {
     );
     const arrfiltevent = events.filter(event => event !== deleteEvent);
 
-    refs.confirm.addEventListener('click', e => {
+    confirm.addEventListener('click', e => {
       if (e.target.id === 'yesButton') {
         events = arrfiltevent;
         localStorage.setItem('events', JSON.stringify(events));
@@ -229,9 +229,9 @@ function delete_event(e) {
           'beforeend',
           renderCalendar(arrfiltevent).join(''),
         );
-        refs.confirm.classList.add('displayNone');
+        confirm.classList.add('displayNone');
       } else if (e.target.id === 'noButton') {
-        refs.confirm.classList.add('displayNone');
+        confirm.classList.add('displayNone');
       }
     });
   }
