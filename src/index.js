@@ -132,7 +132,11 @@ function renderForm_Add(e) {
       }
     });
 
-    form.addEventListener('submit', e => submitEvent(event_Data, e));
+    form.addEventListener('click', e => {
+      if (e.target.id === 'create') {
+        submitEvent(event_Data, e);
+      }
+    });
   }
 }
 
@@ -159,6 +163,7 @@ function submitEvent(event_Data, e) {
   }
   events.push(event_Data);
   localStorage.setItem('events', JSON.stringify(events));
+  history.back();
 }
 
 function renderForm() {
